@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Briefcast</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@300;400;500;600&family=IBM+Plex+Sans:wght@300;400;500;600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <div id="app">
+
+    <!-- Sidebar -->
+    <aside id="sidebar">
+      <div class="logo">⬡ BRIEFCAST</div>
+
+      <nav>
+        <button class="nav-btn active" data-view="record">
+          <span class="nav-icon">●</span> Record
+        </button>
+        <button class="nav-btn" data-view="tasks">
+          <span class="nav-icon">☰</span> Tasks
+        </button>
+        <button class="nav-btn" data-view="history">
+          <span class="nav-icon">◷</span> History
+        </button>
+        <button class="nav-btn" data-view="settings">
+          <span class="nav-icon">⚙</span> Settings
+        </button>
+      </nav>
+
+      <div class="sidebar-footer">
+        <div id="task-count-badge">0 open tasks</div>
+      </div>
+    </aside>
+
+    <!-- Main content -->
+    <main id="content">
+
+      <!-- ── RECORD VIEW ── -->
+      <section id="view-record" class="view active">
+        <div class="view-header">
+          <h1>New Meeting</h1>
+          <p class="subtitle">Start recording to capture and summarize your meeting</p>
+        </div>
+
+        <div id="recorder">
+          <div id="waveform">
+            <div id="wave-bars"></div>
+          </div>
+
+          <div id="timer-display">
+            <span id="rec-dot" style="display:none">●</span>
+            <span id="timer">00:00</span>
+          </div>
+
+          <div id="rec-status"></div>
+
+          <button id="record-btn" class="primary-btn">● START RECORDING</button>
+
+          <div id="processing-panel" style="display:none">
+            <div class="spinner"></div>
+            <div id="processing-step">Initializing...</div>
+            <div class="progress-bar"><div class="progress-fill"></div></div>
+          </div>
+        </div>
+
+        <!-- Result after processing -->
+        <div id="result-panel" style="display:none">
+          <div class="summary-card">
+            <div class="card-label">MEETING SUMMARY</div>
+            <p id="summary-text"></p>
+            <div class="summary-meta">
+              <span id="meta-duration"></span>
+              <span id="meta-date"></span>
+              <span id="meta-tasks"></span>
+            </div>
+          </div>
+
+          <div class="tabs">
+            <button class="tab active" data-tab="new-tasks">ACTION ITEMS</button>
+            <button class="tab" data-tab="transcript">TRANSCRIPT</button>
+          </div>
+
+          <div id="tab-new-tasks" class="tab-panel active">
+            <div id="new-tasks-list"></div>
+            <button id="save-tasks-btn" class="primary-btn" style="margin-top:16px">SAVE ALL TASKS →</button>
+          </div>
+
+          <div id="tab-transcript" class="tab-panel">
+            <div id="transcript-panel"></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ── TASKS VIEW ── -->
+      <section id="view-tasks" class="view">
+        <div class="view-header">
+          <h1>Task Board</h1>
+          <div class="header-actions">
+            <select id="filter-category" class="filter-select">
+              <option value="All">All Categories</option>
+              <option>Engineering</option>
+              <option>Design</option>
+              <option>Sales</option>
+              <option>Customer Success</option>
+              <option>Internal</option>
+              <option>Product</option>
+            </select>
+            <select id="filter-priority" class="filter-select">
+              <option value="All">All Priorities</option>
+              <option>Critical</option>
+              <option>High</option>
+              <option>Medium</option>
+              <option>Low</option>
+            </select>
+          </div>
+        </div>
+
+        <div id="kanban-board">
+          <div class="kanban-col" data-status="To Do">
+            <div class="col-header"><span class="col-dot" style="background:#888"></span>TO DO <span class="col-count">0</span></div>
+            <div class="col-cards" id="col-todo"></div>
+          </div>
+          <div class="kanban-col" data-status="In Progress">
+            <div class="col-header"><span class="col-dot" style="background:#f59e0b"></span>IN PROGRESS <span class="col-count">0</span></div>
+            <div class="col-cards" id="col-inprogress"></div>
+          </div>
+          <div class="kanban-col" data-status="Done">
+            <div class="col-header"><span class="col-dot" style="background:#4ade80"></span>DONE <span class="col-count">0</span></div>
+            <div class="col-cards" id="col-done"></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ── HISTORY VIEW ── -->
+      <section id="view-history" class="view">
+        <div class="view-header">
+          <h1>Meeting History</h1>
+        </div>
+        <div id="history-list"></div>
+      </section>
+
+      <!-- ── SETTINGS VIEW ── -->
+      <section id="view-settings" class="view">
+        <div class="view-header">
+          <h1>Settings</h1>
+        </div>
+        <div class="settings-form">
+          <div class="setting-group">
+            <label>OpenAI API Key <span class="hint">(for Whisper transcription)</span></label>
+            <input type="password" id="openai-key" placeholder="sk-..." />
+          </div>
+          <div class="setting-group">
+            <label>Anthropic API Key <span class="hint">(for Claude summarization)</span></label>
+            <input type="password" id="anthropic-key" placeholder="sk-ant-..." />
+          </div>
+          <div class="setting-group">
+            <label>Audio Device <span class="hint">(should be your VB-Cable output)</span></label>
+            <input type="text" id="audio-device" placeholder="CABLE Output (VB-Audio Virtual Cable)" />
+            <p class="setting-hint">Install VB-Cable from vb-audio.com. In Windows Sound settings, set your meeting app's output to CABLE Input, then this app records from CABLE Output.</p>
+          </div>
+          <button id="save-settings-btn" class="primary-btn">SAVE SETTINGS</button>
+          <div id="settings-status" class="status-msg"></div>
+        </div>
+      </section>
+
+    </main>
+  </div>
+
+  <script src="renderer.js"></script>
+</body>
+</html>
